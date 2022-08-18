@@ -52,6 +52,7 @@ class MemoryUsageViewer(QMainWindow):
         self.loadingOverlayWidget.hide()
         
         self.setCentralWidget(self.centralWidget)
+        self.setWindowIcon(getIcon('app.png'))
         self.showMaximized()
     
     def showLoadingOverlay(self):
@@ -104,6 +105,7 @@ class MemoryUsageViewer(QMainWindow):
             self.option_HumanReadableNumbers,
             self.option_FullCommandLine
         )
+        # Set focus to process memory widget
         self.processMemView.processMemoryWidget.setFocus()
     
     def finalizeSmemDataLoading(self, smemData):
