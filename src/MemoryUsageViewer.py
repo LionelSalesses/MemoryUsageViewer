@@ -4,6 +4,7 @@ from SmemProxy import SmemProxy
 from OverlayWidget import OverlayWidget
 from ProcessMemoryView import ProcessMemoryView
 from Tools import getCommandName
+from Icons import getIcon
 
 
 class SmemProxyWorker(QObject):
@@ -45,11 +46,7 @@ class MemoryUsageViewer(QMainWindow):
         self.mainLayout.addWidget(self.topBar)
         
         self.processMemView = ProcessMemoryView(self.smemProxy, self.app, self.centralWidget)
-        self.processMemView.setFocus()
         self.mainLayout.addWidget(self.processMemView)
-        
-        self.bottomBar = self.createBottomBar(self.centralWidget)
-        self.mainLayout.addWidget(self.bottomBar)
         
         self.loadingOverlayWidget = OverlayWidget(parent=self.centralWidget)
         self.loadingOverlayWidget.hide()
@@ -107,6 +104,7 @@ class MemoryUsageViewer(QMainWindow):
             self.option_HumanReadableNumbers,
             self.option_FullCommandLine
         )
+        self.processMemView.processMemoryWidget.setFocus()
     
     def finalizeSmemDataLoading(self, smemData):
         # Save smem data
@@ -123,26 +121,49 @@ class MemoryUsageViewer(QMainWindow):
     
     def createTopBar(self, parent):
         self.topBarWidget = QWidget(parent)
-        self.topBarLayout = QHBoxLayout()
+        self.topBarLayout = QVBoxLayout()
         self.topBarWidget.setLayout(self.topBarLayout)
+        
+        self.bar1Layout = QHBoxLayout()
+        self.bar2Layout = QHBoxLayout()
+        self.topBarLayout.addLayout(self.bar1Layout)
+        self.topBarLayout.addLayout(self.bar2Layout)
         
         # Refresh button
         self.refreshButton = QPushButton(self.topBarWidget)
-        self.topBarLayout.addWidget(self.refreshButton)
+        self.bar1Layout.addWidget(self.refreshButton)
         self.refreshButton.setText('Refresh')
-        #self.refreshButton.setIcon()  # TODO refresh icon
+        self.refreshButton.setIcon(getIcon('refresh.png'))
         self.refreshButton.clicked.connect(self.resfreshProcessMemViewer)
+        
+        # Spacer
+        self.bar1Layout.addStretch()
+        
+        # 'Human readable numbers' option checkbox
+        self.humandReadableNumCheckBox = QCheckBox(self.topBarWidget)
+        self.bar1Layout.addWidget(self.humandReadableNumCheckBox)
+        self.humandReadableNumCheckBox.setText('Human readable numbers')
+        self.humandReadableNumCheckBox.clicked.connect(self.onHumanReadableCheckboxClick)
+        self.humandReadableNumCheckBox.setChecked(self.option_HumanReadableNumbers)
+        
+        # 'Full command line' option checkbox
+        self.fullCmdLineCheckBox = QCheckBox(self.topBarWidget)
+        self.bar1Layout.addWidget(self.fullCmdLineCheckBox)
+        self.fullCmdLineCheckBox.setText('Full command line')
+        self.fullCmdLineCheckBox.clicked.connect(self.onFullCmdLineCheckboxClick)
+        self.fullCmdLineCheckBox.setChecked(self.option_FullCommandLine)
         
         # Filter text
         self.filterTextWidget = QLineEdit(self.topBarWidget)
         self.filterTextWidget.setPlaceholderText('Enter filter text')
         self.filterTextWidget.returnPressed.connect(self.onFilterClick)
-        self.topBarLayout.addWidget(self.filterTextWidget)
+        self.bar2Layout.addWidget(self.filterTextWidget)
         
         # Filter button
         self.filterButton = QPushButton(self.topBarWidget)
-        self.topBarLayout.addWidget(self.filterButton)
+        self.bar2Layout.addWidget(self.filterButton)
         self.filterButton.setText('Filter')
+        self.filterButton.setIcon(getIcon('filter.png'))
         self.filterButton.clicked.connect(self.onFilterClick)
         
         return self.topBarWidget
@@ -161,28 +182,6 @@ class MemoryUsageViewer(QMainWindow):
         self.option_FullCommandLine = self.fullCmdLineCheckBox.isChecked()
         # Refresh process memory view without reload smem data
         self.refreshProcessMemView()
-    
-    def createBottomBar(self, parent):
-        self.bottomBarWidget = QWidget(parent)
-        self.bottomBarLayout = QHBoxLayout()
-        self.bottomBarWidget.setLayout(self.bottomBarLayout)
-        
-        # 'Human readable numbers' option checkbox
-        self.humandReadableNumCheckBox = QCheckBox(self.bottomBarWidget)
-        self.bottomBarLayout.addWidget(self.humandReadableNumCheckBox)
-        self.humandReadableNumCheckBox.setText('Human readable numbers')
-        self.humandReadableNumCheckBox.clicked.connect(self.onHumanReadableCheckboxClick)
-        self.humandReadableNumCheckBox.setChecked(self.option_HumanReadableNumbers)
-        
-        # 'Full command line' option checkbox
-        self.fullCmdLineCheckBox = QCheckBox(self.bottomBarWidget)
-        self.bottomBarLayout.addWidget(self.fullCmdLineCheckBox)
-        self.fullCmdLineCheckBox.setText('Full command line')
-        self.fullCmdLineCheckBox.clicked.connect(self.onFullCmdLineCheckboxClick)
-        self.fullCmdLineCheckBox.setChecked(self.option_FullCommandLine)
-
-        return self.bottomBarWidget
-        
     
     def notifyError(self, severity, message):
         assert severity in ['ERROR', 'CRITICAL']
