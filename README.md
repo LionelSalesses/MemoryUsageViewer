@@ -25,4 +25,5 @@ Code is under MIT license.
 
 Icons contained in icons/ directory are made by **Freepik** on [flaticon](https://www.flaticon.com/).
 They are under flaticon license.
-Credits for icons to [link](https://www.flaticon.com/authors/freepik)
+Credits for icons to [link](https://www.flaticon.com/authors/freepik).
+
