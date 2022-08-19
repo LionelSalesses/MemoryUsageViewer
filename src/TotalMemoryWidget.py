@@ -46,6 +46,7 @@ class TotalMemoryWidget(TableWidget):
         for col, value in enumerate(rowData):
             tableItem = QTableWidgetItem()
             tableItem.setData(Qt.EditRole, value)
+            tableItem.setData(Qt.ToolTipRole, value)
             if col >= 1 and humanReadable:
                 tableItem.setData(Qt.DisplayRole, formatNumberToHumanReadable(value))
             self.setItem(0, col, tableItem)
