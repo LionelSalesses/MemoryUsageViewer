@@ -18,7 +18,9 @@ This project depends on:
 - [smem](https://github.com/kwkroeger/smem)
 
 # Usage
-Run './run.sh'
+The 'genDesktopEntry.sh' script can be used to generate a .desktop entry copied into ~/.local/share/applications directory.
+
+Run './run.sh' to launch the application.
 
 # License
 Code is under MIT license.
