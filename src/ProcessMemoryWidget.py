@@ -4,6 +4,23 @@ from TableWidget import TableWidget
 from Tools import formatNumberToHumanReadable, getCommandName
 
 
+class MemoryAmountWidgetItem(QTableWidgetItem):
+    def __init__(self, value: int, humanReadable : bool):
+        super().__init__()
+        self.value = value
+        self.humanReadable = humanReadable
+        self.setData(Qt.ToolTipRole, value)
+        if self.humanReadable:
+            self.setData(Qt.DisplayRole, formatNumberToHumanReadable(value))
+        else:
+            self.setData(Qt.DisplayRole, value)
+        self.setData(Qt.UserRole, value)
+
+    def __lt__(self, other: QTableWidgetItem):
+        value = other.data(Qt.UserRole)
+        return self.value < value
+
+
 class ProcessMemoryWidget(TableWidget):
     def __init__(self, app, smemProxy, parent):
         super().__init__(app, parent)
@@ -48,13 +65,15 @@ class ProcessMemoryWidget(TableWidget):
         # Populate
         for row, rowData in enumerate(data):
             for col, value in enumerate(rowData):
-                tableItem = QTableWidgetItem()
-                tableItem.setData(Qt.EditRole, value)
-                tableItem.setData(Qt.ToolTipRole, value)
-                if headers[col] in ['RSS', 'PSS', 'USS'] and humanReadable:
-                    tableItem.setData(Qt.DisplayRole, formatNumberToHumanReadable(value))
-                elif headers[col] == 'Command line' and not fullCommandLine:
-                    tableItem.setData(Qt.DisplayRole, getCommandName(value))
+                if headers[col] in ['RSS', 'PSS', 'USS']:
+                    tableItem = MemoryAmountWidgetItem(value, humanReadable)
+                else:
+                    tableItem = QTableWidgetItem()
+                    tableItem.setData(Qt.ToolTipRole, value)
+                    if headers[col] == 'Command line' and not fullCommandLine:
+                        tableItem.setData(Qt.DisplayRole, getCommandName(value))
+                    else:
+                        tableItem.setData(Qt.DisplayRole, value)
                 self.setItem(row, col, tableItem)
         
         # Resize to content. Hiding is necessary to get it work. See:
